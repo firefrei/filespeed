@@ -1,0 +1,38 @@
+<!doctype html>
+
+<head>
+    <title>HTTP payload generator for client-side speed tests and connection benchmarks</title>
+</head>
+
+<body>
+
+    <h2>File Download</h2>
+    <p>
+    <pre>
+        <i>URL-Format:&nbsp;</i> <b>/</b>file<b>/</b>{generator => random | zero}<b>/</b>{filesize}<b>/</b>{filesize => b | kb | mb | gb | tb; default: mb}
+        <i>URL-Example:</i> {{ url_for('generate_file', generator='random', mb=1, unit='mb') }}
+        <i>Optional HTTP-GET Parameters:</i>
+          - chunk_size = bytes to read from content generator respectively to send per iteration
+    </pre>
+
+
+    <h3>Generator: Random</h3>
+    <ul>
+        <li><a href="{{ url_for('generate_file', generator='random', mb=500, unit='kb') }}">500 KB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='random', mb=1, unit='mb') }}">1 MB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='random', mb=500, unit='mb') }}">500 MB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='random', mb=1, unit='gb') }}">1 GB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='random', mb=10, unit='gb') }}">10 GB</a></li>
+    </ul>
+
+    <h3>Generator: Zero</h3>
+    <ul>
+        <li><a href="{{ url_for('generate_file', generator='zero', mb=500, unit='kb') }}">500 KB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='zero', mb=1, unit='mb') }}">1 MB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='zero', mb=500, unit='mb') }}">500 MB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='zero', mb=1, unit='gb') }}">1 GB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='zero', mb=10, unit='gb') }}">10 GB</a></li>
+    </ul>
+    </p>
+
+</body>
