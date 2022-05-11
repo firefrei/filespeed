@@ -9,12 +9,11 @@ app = Quart(__name__)
 async def index():
     return await render_template('index.html')
 
-@app.route('/file/<generator>/<int:mb>')
-@app.route('/file/<generator>/<int:mb>/<unit>')
-async def generate_file(mb, unit="mb", generator="random"):
+@app.route('/file/<generator>/<int:sz>')
+@app.route('/file/<generator>/<int:sz>/<unit>')
+async def generate_file(sz, unit="mb", generator="random"):
     args = request.args
 
-    scale = 10**6
     unit = unit.lower()
     if unit == "b":
         scale = 1
@@ -24,8 +23,10 @@ async def generate_file(mb, unit="mb", generator="random"):
         scale = 10**9
     elif unit == "tb":
         scale = 10**12
+    else:
+        scale = 10**6
 
-    content_bytes = mb * scale
+    content_bytes = sz * scale
     chunk_bytes = args.get("chunk_size", default=1000, type=int)
     chunk_num = ceil(content_bytes/chunk_bytes)
 

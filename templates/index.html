@@ -9,8 +9,8 @@
     <h2>File Download</h2>
     <p>
     <pre>
-        <i>URL-Format:&nbsp;</i> <b>/</b>file<b>/</b>{generator => random | zero}<b>/</b>{filesize}<b>/</b>{filesize => b | kb | mb | gb | tb; default: mb}
-        <i>URL-Example:</i> {{ url_for('generate_file', generator='random', mb=1, unit='mb') }}
+        <i>URL-Format:&nbsp;</i> <b>/</b>file<b>/</b>{generator => random | zero}<b>/</b>{filesize}<b>/</b>{unit => b | kb | mb | gb | tb; default: mb}
+        <i>URL-Example:</i> {{ url_for('generate_file', generator='random', sz=1, unit='mb') }}
         <i>Optional HTTP-GET Parameters:</i>
           - chunk_size = bytes to read from content generator respectively to send per iteration (default: 1000)
     </pre>
@@ -18,28 +18,28 @@
 
     <h3>Generator: Random</h3>
     <ul>
-        <li><a href="{{ url_for('generate_file', generator='random', mb=500, unit='kb') }}">500 KB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='random', mb=1, unit='mb') }}">1 MB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='random', mb=500, unit='mb') }}">500 MB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='random', mb=1, unit='gb') }}">1 GB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='random', mb=10, unit='gb') }}">10 GB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='random', sz=500, unit='kb') }}">500 KB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='random', sz=1, unit='mb') }}">1 MB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='random', sz=500, unit='mb') }}">500 MB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='random', sz=1, unit='gb') }}">1 GB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='random', sz=10, unit='gb') }}">10 GB</a></li>
     </ul>
 
     <h3>Generator: Zero</h3>
     <ul>
-        <li><a href="{{ url_for('generate_file', generator='zero', mb=500, unit='kb') }}">500 KB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='zero', mb=1, unit='mb') }}">1 MB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='zero', mb=500, unit='mb') }}">500 MB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='zero', mb=1, unit='gb') }}">1 GB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='zero', mb=10, unit='gb') }}">10 GB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='zero', sz=500, unit='kb') }}">500 KB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='zero', sz=1, unit='mb') }}">1 MB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='zero', sz=500, unit='mb') }}">500 MB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='zero', sz=1, unit='gb') }}">1 GB</a></li>
+        <li><a href="{{ url_for('generate_file', generator='zero', sz=10, unit='gb') }}">10 GB</a></li>
     </ul>
     </p>
 
     <p>
         <h3>Usage Examples</h3>
         <pre>
-            Using curl:     curl --output /dev/null {{ url_for('generate_file', generator='random', mb=1, unit='gb', _external=True) }}
-            Using wget:     wget -O /dev/null [--report-speed=bits] {{ url_for('generate_file', generator='random', mb=1, unit='gb', _external=True) }}
+            Using curl:     curl --output /dev/null {{ url_for('generate_file', generator='random', sz=1, unit='gb', _external=True) }}
+            Using wget:     wget -O /dev/null [--report-speed=bits] {{ url_for('generate_file', generator='random', sz=1, unit='gb', _external=True) }}
         </pre>
     </p>
 
