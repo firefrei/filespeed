@@ -14,6 +14,7 @@ async def index():
 async def generate_file(sz, unit="mb", generator="random"):
     args = request.args
 
+    # Determine final content size
     unit = unit.lower()
     if unit == "b":
         scale = 1
@@ -30,6 +31,7 @@ async def generate_file(sz, unit="mb", generator="random"):
     chunk_bytes = args.get("chunk_size", default=1000, type=int)
     chunk_num = ceil(content_bytes/chunk_bytes)
 
+    # Define and choose generator
     async def generate_urandom():
         bytes_remaining = content_bytes
         while bytes_remaining > 0:
