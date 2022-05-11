@@ -1,17 +1,17 @@
 import os
 from math import ceil
-from flask import Flask, request, render_template
+from quart import Quart, request, render_template
 
-app = Flask(__name__)
+app = Quart(__name__)
 
 
 @app.route('/')
-def index():
-    return render_template('index.html')
+async def index():
+    return await render_template('index.html')
 
 @app.route('/file/<generator>/<int:mb>')
 @app.route('/file/<generator>/<int:mb>/<unit>')
-def generate_file(mb, unit="mb", generator="random"):
+async def generate_file(mb, unit="mb", generator="random"):
     args = request.args
 
     scale = 10**6
@@ -29,7 +29,7 @@ def generate_file(mb, unit="mb", generator="random"):
     chunk_bytes = args.get("chunk_size", default=1000, type=int)
     chunk_num = ceil(content_bytes/chunk_bytes)
 
-    def generate_urandom():
+    async def generate_urandom():
         bytes_remaining = content_bytes
         while bytes_remaining > 0:
             for _ in range(0, chunk_num):
@@ -37,7 +37,7 @@ def generate_file(mb, unit="mb", generator="random"):
                 bytes_remaining = bytes_remaining - size
                 yield os.urandom(size)
     
-    def generate_zero():
+    async def generate_zero():
         bytes_remaining = content_bytes
         zeroes = bytes(chunk_bytes)
         while bytes_remaining > 0:
@@ -50,8 +50,8 @@ def generate_file(mb, unit="mb", generator="random"):
 
     return app.response_class(
         generator_fun(), 
-        mimetype="application/octet-stream",
-        headers={
+        mimetype = "application/octet-stream",
+        headers = {
             "Content-Length": content_bytes,
             "Content-Disposition": "attachment; filename=%d.bin" % (content_bytes)
         })
