@@ -1,6 +1,6 @@
 import os
 from math import ceil
-from quart import Quart, request, render_template
+from quart import Quart, request, render_template, make_response
 
 app = Quart(__name__)
 
@@ -32,14 +32,14 @@ async def generate_file(sz, unit="mb", generator="random"):
     chunk_num = ceil(content_bytes/chunk_bytes)
 
     # Define and choose generator
-    async def generate_urandom():
+    async def generate_random():
         bytes_remaining = content_bytes
         while bytes_remaining > 0:
             for _ in range(0, chunk_num):
                 size = chunk_bytes if bytes_remaining > chunk_bytes else bytes_remaining
                 bytes_remaining = bytes_remaining - size
                 yield os.urandom(size)
-    
+
     async def generate_zero():
         bytes_remaining = content_bytes
         zeroes = bytes(chunk_bytes)
@@ -48,14 +48,21 @@ async def generate_file(sz, unit="mb", generator="random"):
                 size = chunk_bytes if bytes_remaining > chunk_bytes else bytes_remaining
                 bytes_remaining = bytes_remaining - size
                 yield zeroes
-    
-    generator_fun = generate_zero if generator == "zero" else generate_urandom
 
-    return app.response_class(
-        generator_fun(), 
+    generator_fun = generate_zero if generator == "zero" else generate_random
+    
+    # Create response object
+    response = await make_response(
+        generator_fun(),
         mimetype = "application/octet-stream",
         headers = {
             "Content-Length": content_bytes,
             "Content-Disposition": "attachment; filename=%d.bin" % (content_bytes)
         })
 
+    # define timeout limit: 2 minutes per gigabyte (or user defined), maximum 1 hour
+    response.timeout = args.get("timeout", default=(content_bytes/(10**9) * 2 * 60), type=int)
+    if response.timeout > 3600:
+        response.timeout = 3600
+
+    return response

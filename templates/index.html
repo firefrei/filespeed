@@ -13,6 +13,7 @@
         <i>URL-Example:</i> {{ url_for('generate_file', generator='random', sz=1, unit='mb') }}
         <i>Optional HTTP-GET Parameters:</i>
           - chunk_size = bytes to read from content generator respectively to send per iteration (default: 1000)
+          - timeout = seconds until connection is closed on server side (default: two minutes per gigabyte. max: 1h)
     </pre>
 
 
