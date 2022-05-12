@@ -48,7 +48,7 @@ async def generate_file(sz, unit="mb", generator="random"):
         bytes_remaining = content_bytes
         while bytes_remaining > 0:
             for _ in range(0, chunk_num):
-                size = chunk_bytes if bytes_remaining > chunk_bytes else bytes_remaining
+                size = min(chunk_bytes, bytes_remaining)
                 bytes_remaining = bytes_remaining - size
                 yield os.urandom(size)
 
@@ -57,7 +57,7 @@ async def generate_file(sz, unit="mb", generator="random"):
         bytes_remaining = content_bytes
         while bytes_remaining > 0:
             for _ in range(0, chunk_num):
-                size = chunk_bytes if bytes_remaining > chunk_bytes else bytes_remaining
+                size = min(chunk_bytes, bytes_remaining)
                 bytes_remaining = bytes_remaining - size
                 yield zeroes if size == chunk_bytes else bytes(bytes_remaining)
 
