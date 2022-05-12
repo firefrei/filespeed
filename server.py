@@ -25,6 +25,14 @@ async def generate_file(sz, unit="mb", generator="random"):
         scale = 10**9
     elif unit == "tb":
         scale = 10**12
+    elif unit == "kib":
+        scale = 2**10
+    elif unit == "mib":
+        scale = 2**20
+    elif unit == "gib":
+        scale = 2**30
+    elif unit == "tib":
+        scale = 2**40
     else:
         scale = 10**6
 
@@ -60,10 +68,14 @@ async def generate_file(sz, unit="mb", generator="random"):
             "Content-Disposition": "attachment; filename=%d.bin" % (content_bytes)
         })
 
-    # define timeout limit: 6 minutes per gigabyte (or user defined), maximum 1 hour
-    response.timeout = args.get("timeout", default=int(content_bytes/(10**9) * 6 * 60), type=int)
-    if response.timeout > 3600:
-        response.timeout = 3600
+    # define timeout limit: 
+    # - min: 60s
+    # - max: 3600s
+    # - normal: 6 minutes per gigabyte or user defined
+    response.timeout = args.get("timeout",
+        default = max(ceil(content_bytes/(10**9) * 6 * 60), 60),
+        type = int)
+    response.timeout = int(min(response.timeout, 3600))
     
     # Finally, add filespeed info headers
     response.headers.update({
