@@ -6,7 +6,14 @@ However, many alternative solutions generate files in-advance and serve them via
   
 Filespeed simply generates the served file content on-the-fly using generators. The goal of Filespeed is to enable performance measurements based on existing methods (file/block download) rather than inventing a new speed test client. It uses a common HTTP webserver that will serve your requests. On your client, you can use any performance-optimized tool of your choice: Your browser, curl, wget, ...  
   
-Filespeed offers an index page with download links of example sizes. However, using the Filespeed URL format, you can easily download a file generated with your desired characteristics. The file content can be generated with random bytes (from `/dev/urandom`) or using simple zeros (null bytes). Zeroes are created faster than random bytes, however, random content is probably closer to a realistic scenario. Moreover, random content traffic can hardly be optimized or compressed (e.g., by WAN optimizers or gzip compression).  
+Filespeed offers an index page with download links of example sizes. For more flexibility, you can easily download a file generated with your desired characteristics using the Filespeed URL format. The file content can be generated with random bytes (from `/dev/urandom`) or using simple zeros (null bytes). Zeroes are created faster than random bytes, however, random content is probably closer to a realistic scenario. Moreover, random content traffic is hard to optimize or compress (e.g., by WAN optimizers or gzip compression).  
+
+
+### Features
+- dynamic file content generation with URL parameter based configuration
+- multiple payload generators: random and zero bytes
+- support of http1.1 and http2.0 (without TLS/SSL)
+- compression disabled
 
 
 ## Run using Docker
