@@ -29,7 +29,7 @@ async def generate_file(sz, unit="mb", generator="random"):
         scale = 10**6
 
     content_bytes = sz * scale
-    chunk_bytes = args.get("chunk_size", default=1000, type=int)
+    chunk_bytes = args.get("chunk_size", default=1420, type=int)
     chunk_num = ceil(content_bytes/chunk_bytes)
 
     # Define and choose generator
