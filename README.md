@@ -8,12 +8,14 @@ Filespeed simply generates the served file content on-the-fly using generators. 
   
 Filespeed offers an index page with download links of example sizes. For more flexibility, you can easily download a file generated with your desired characteristics using the Filespeed URL format. The file content can be generated with random bytes (from `/dev/urandom`) or using simple zeros (null bytes). Zeroes are created faster than random bytes, however, random content is probably closer to a realistic scenario. Moreover, random content traffic is hard to optimize or compress (e.g., by WAN optimizers or gzip compression).  
 
-
 ### Features
 - dynamic file content generation with URL parameter based configuration
 - multiple payload generators: random and zero bytes
 - support of http1.1 and http2.0 (without TLS/SSL)
 - compression disabled
+  
+Source on GitHub: https://github.com/firefrei/filespeed  
+Image on Docker Hub: https://hub.docker.com/r/firefrei/filespeed  
 
 
 ## Run using Docker
