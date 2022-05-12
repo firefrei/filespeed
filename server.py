@@ -60,8 +60,8 @@ async def generate_file(sz, unit="mb", generator="random"):
             "Content-Disposition": "attachment; filename=%d.bin" % (content_bytes)
         })
 
-    # define timeout limit: 2 minutes per gigabyte (or user defined), maximum 1 hour
-    response.timeout = args.get("timeout", default=int(content_bytes/(10**9) * 2 * 60), type=int)
+    # define timeout limit: 6 minutes per gigabyte (or user defined), maximum 1 hour
+    response.timeout = args.get("timeout", default=int(content_bytes/(10**9) * 6 * 60), type=int)
     if response.timeout > 3600:
         response.timeout = 3600
     
