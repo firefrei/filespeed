@@ -5,11 +5,11 @@
 </head>
 
 <body>
-
+    <h1 style="text-align: right">[=====filespeed===============>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]</h1>
     <h2>File Download</h2>
     <p>
     <pre>
-        <i>URL-Format:&nbsp;</i> <b>/</b>file<b>/</b>{generator => random | zero}<b>/</b>{filesize}<b>/</b>{unit => b | kb | mb | gb | tb; default: mb}
+        <i>URL-Format:&nbsp;</i> <b>/</b>file<b>/</b>{generator => random | zero}<b>/</b>{filesize}<b>/</b>{unit => b | kb | kib | mb | mib | gb | gib | tb | tib; default: mb}
         <i>URL-Example:</i> {{ url_for('generate_file', generator='random', sz=1, unit='mb') }}
         <i>Optional HTTP-GET Parameters:</i>
           - chunk_size = bytes to read from content generator respectively to send per iteration (default: 1420)
