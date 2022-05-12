@@ -41,25 +41,22 @@ async def generate_file(sz, unit="mb", generator="random"):
     # Set default chunk size according to quart file read / IOBody (ResponseBody) buffer size
     # https://github.com/pgjones/quart/blob/6a40acc61735bbac770b998caa26e8144ddfdfa5/src/quart/wrappers/response.py#L179
     chunk_bytes = args.get("chunk_size", default=8192, type=int)
-    chunk_num = ceil(content_bytes/chunk_bytes)
 
     # Define and choose generator
     async def generate_random():
         bytes_remaining = content_bytes
         while bytes_remaining > 0:
-            for _ in range(0, chunk_num):
-                size = min(chunk_bytes, bytes_remaining)
-                bytes_remaining = bytes_remaining - size
-                yield os.urandom(size)
+            size = min(chunk_bytes, bytes_remaining)
+            bytes_remaining = bytes_remaining - size
+            yield os.urandom(size)
 
     async def generate_zero():
         zeroes = bytes(chunk_bytes)
         bytes_remaining = content_bytes
         while bytes_remaining > 0:
-            for _ in range(0, chunk_num):
-                size = min(chunk_bytes, bytes_remaining)
-                bytes_remaining = bytes_remaining - size
-                yield zeroes if size == chunk_bytes else bytes(bytes_remaining)
+            size = min(chunk_bytes, bytes_remaining)
+            bytes_remaining = bytes_remaining - size
+            yield zeroes if size == chunk_bytes else bytes(size)
 
     generator_fun = generate_zero if generator == "zero" else generate_random
     
