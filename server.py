@@ -52,10 +52,9 @@ async def generate_file(sz, unit="mb", generator="random"):
     generator_fun = generate_zero if generator == "zero" else generate_random
     
     # Create response object
-    response = await make_response(
-        generator_fun(),
-        mimetype = "application/octet-stream",
-        headers = {
+    response = await make_response(generator_fun())
+    response.headers.update({
+            "Content-Type": "application/octet-stream",
             "Content-Length": content_bytes,
             "Content-Disposition": "attachment; filename=%d.bin" % (content_bytes)
         })
