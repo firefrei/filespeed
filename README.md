@@ -33,8 +33,8 @@ Using curl:
 curl --output /dev/null http://localhost:5000/file/random/10/gb
 
 # Optional parameters:
-#  --http1.1     -> force http version 1.1 (mostly default)
-#  --http2       -> force http version 2 which supports multiplexing
+#   --http1.1     -> force http version 1.1 (mostly default)
+#   --http2       -> force http version 2 which supports multiplexing
 ```
 
 Using wget:

@@ -40,7 +40,13 @@
         <h3>Usage Examples</h3>
         <pre>
             Using curl:     curl --output /dev/null {{ url_for('generate_file', generator='random', sz=1, unit='gb', _external=True) }}
-            Using wget:     wget -O /dev/null [--report-speed=bits] {{ url_for('generate_file', generator='random', sz=1, unit='gb', _external=True) }}
+                            # Optional parameters:
+                            #   --http1.1     -> force http version 1.1 (mostly default)
+                            #   --http2       -> force http version 2 which supports multiplexing
+
+            Using wget:     wget -O /dev/null {{ url_for('generate_file', generator='random', sz=1, unit='gb', _external=True) }}
+                            # Optional parameters:
+                            #   --report-speed=bits     -> report measured rate in bit rather than bytes per second
         </pre>
     </p>
 
