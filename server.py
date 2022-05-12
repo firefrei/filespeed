@@ -13,6 +13,7 @@ async def index():
 @app.route('/file/<generator>/<int:sz>/<unit>')
 async def generate_file(sz, unit="mb", generator="random"):
     args = request.args
+    generator = generator if generator in ["random", "zero"] else "random"
 
     # Determine final content size
     unit = unit.lower()
@@ -63,5 +64,12 @@ async def generate_file(sz, unit="mb", generator="random"):
     response.timeout = args.get("timeout", default=(content_bytes/(10**9) * 2 * 60), type=int)
     if response.timeout > 3600:
         response.timeout = 3600
+    
+    # Finally, add filespeed info headers
+    response.headers.update({
+        "filespeed-generator": generator,
+        "filespeed-chunk-size": chunk_bytes,
+        "filespeed-timeout": response.timeout
+    })
 
     return response
