@@ -4,7 +4,7 @@
 The simplest speed test: Download a file!  
 However, many solutions generate test files in-advance and serve them via a webserver. Consequently, the larger the files you want to provide, the more disk space you need to statically allocate to store them. Especially in cloud-native environments, where your speed test server can be deployed on multiple nodes, this is a challenge.  
   
-Filespeed simply generates the served file content on-the-fly using generators. The goal of Filespeed is to enable performance measurements based on existing methods (file/block download) rather than inventing a new speed test client. It uses a common HTTP webserver that will serve your requests. On your client, you can use any performance-optimized tool of your choice: Your browser, curl, wget, ... Check the `Client examples` section below as well as `client_examples` directory for usage examples.  
+Filespeed simply generates the served file content on-the-fly using generators. The goal of Filespeed is to enable performance measurements based on existing methods (file/block download) rather than inventing a new speed test client. It uses a common HTTP webserver that will serve your requests. On your client, you can use any performance-optimized tool of your choice: Your browser, curl, wget, ... Check the `Client examples` section below as well as `client_examples` directory for usage examples. Filespeed also offers the possibility to upload files using the HTTP post method.  
   
 Filespeed offers an index page with download links of example sizes. For more flexibility, you can easily download a file generated with your desired characteristics using the Filespeed URL format. The file content can be generated online with random bytes (from `/dev/urandom`) or using simple zeros (null bytes). Zeroes are created faster than random bytes, however, random content is probably closer to a realistic scenario. Moreover, random content traffic is hard to optimize or compress (e.g., by WAN optimizers or gzip compression).  
 
@@ -30,7 +30,11 @@ Access http://localhost:5000 in your browser!
 
 Using curl:
 ```bash
+# Download
 curl --output /dev/null http://localhost:5000/file/random/10/gb
+
+# Upload
+dd if=/dev/urandom bs=1000 count=100000 | curl -w '%{json}' --data-binary @- http://localhost:5000/file/upload
 
 # Optional parameters:
 #   --http1.1     -> force http version 1.1 (mostly default)
