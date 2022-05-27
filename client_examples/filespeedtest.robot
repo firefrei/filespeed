@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation    Test suite for evaluating download performance using curl and filespeed.
 ...              This can be used to check the capacity of a connection.
-...              Requires: 'curl' in a version that support output formatting with "-w" parameter
+...              Requires: 'curl' in a version that supports json output formatting with "-w" parameter
 ...              
 ...              Call example: `robot --variable HOST:filespeed filespeedtest.robot`
 Metadata    Version        1.0

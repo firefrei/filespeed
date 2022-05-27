@@ -1,53 +1,66 @@
 <!doctype html>
 
 <head>
-    <title>HTTP payload generator for client-side speed tests and connection benchmarks</title>
+    <title>==filespeed===> HTTP payload generator service for client-side speed tests and connection benchmarks</title>
 </head>
 
 <body>
     <h1 style="text-align: right">[=====filespeed===============>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]</h1>
     <h2>File Download</h2>
     <p>
-    <pre>
-        <i>URL-Format:&nbsp;</i> <b>/</b>file<b>/</b>{generator => random | zero}<b>/</b>{filesize}<b>/</b>{unit => b | kb | kib | mb | mib | gb | gib | tb | tib; default: mb}
-        <i>URL-Example:</i> {{ url_for('generate_file', generator='random', sz=1, unit='mb') }}
-        <i>Optional HTTP-GET Parameters:</i>
-          - chunk_size = bytes to read from content generator respectively to send per iteration (default: 8192)
-          - timeout = seconds until connection is closed on server side (default: six minutes per gigabyte. max: 1h)
-    </pre>
+<pre>
+    <i>URL-Format:&nbsp;</i> <b>/</b>file<b>/</b>{generator => random | zero}<b>/</b>{filesize}<b>/</b>{unit => b | kb | kib | mb | mib | gb | gib | tb | tib; default: mb}
+    <i>URL-Example:</i> {{ url_for('download_file', generator='random', sz=1, unit='mb') }}
+    <i>Optional HTTP-GET Parameters:</i>
+        - chunk_size = bytes to read from content generator respectively to send per iteration (default: 8192)
+        - timeout = seconds until connection is closed on server side (default: six minutes per gigabyte. max: 1h)
+</pre>
 
 
     <h3>Generator: Random</h3>
     <ul>
-        <li><a href="{{ url_for('generate_file', generator='random', sz=500, unit='kb') }}">500 KB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='random', sz=1, unit='mb') }}">1 MB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='random', sz=500, unit='mb') }}">500 MB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='random', sz=1, unit='gb') }}">1 GB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='random', sz=10, unit='gb') }}">10 GB</a></li>
+        <li><a href="{{ url_for('download_file', generator='random', sz=500, unit='kb') }}">500 KB</a></li>
+        <li><a href="{{ url_for('download_file', generator='random', sz=1, unit='mb') }}">1 MB</a></li>
+        <li><a href="{{ url_for('download_file', generator='random', sz=500, unit='mb') }}">500 MB</a></li>
+        <li><a href="{{ url_for('download_file', generator='random', sz=1, unit='gb') }}">1 GB</a></li>
+        <li><a href="{{ url_for('download_file', generator='random', sz=10, unit='gb') }}">10 GB</a></li>
     </ul>
 
     <h3>Generator: Zero</h3>
     <ul>
-        <li><a href="{{ url_for('generate_file', generator='zero', sz=500, unit='kb') }}">500 KB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='zero', sz=1, unit='mb') }}">1 MB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='zero', sz=500, unit='mb') }}">500 MB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='zero', sz=1, unit='gb') }}">1 GB</a></li>
-        <li><a href="{{ url_for('generate_file', generator='zero', sz=10, unit='gb') }}">10 GB</a></li>
+        <li><a href="{{ url_for('download_file', generator='zero', sz=500, unit='kb') }}">500 KB</a></li>
+        <li><a href="{{ url_for('download_file', generator='zero', sz=1, unit='mb') }}">1 MB</a></li>
+        <li><a href="{{ url_for('download_file', generator='zero', sz=500, unit='mb') }}">500 MB</a></li>
+        <li><a href="{{ url_for('download_file', generator='zero', sz=1, unit='gb') }}">1 GB</a></li>
+        <li><a href="{{ url_for('download_file', generator='zero', sz=10, unit='gb') }}">10 GB</a></li>
     </ul>
     </p>
 
-    <p>
-        <h3>Usage Examples</h3>
-        <pre>
-            Using curl:     curl --output /dev/null {{ url_for('generate_file', generator='random', sz=1, unit='gb', _external=True) }}
-                            # Optional parameters:
-                            #   --http1.1     -> force http version 1.1 (mostly default)
-                            #   --http2       -> force http version 2 which supports multiplexing
+    <br>
 
-            Using wget:     wget -O /dev/null {{ url_for('generate_file', generator='random', sz=1, unit='gb', _external=True) }}
-                            # Optional parameters:
-                            #   --report-speed=bits     -> report measured rate in bit rather than bytes per second
-        </pre>
+    <h2>File Upload</h2>
+    <p>
+<pre>
+    <i>URL-Format:&nbsp;</i> <b>/</b>file<b>/</b>upload
+    <i>HTTP-Method:</i> POST
+</pre>
+    </p>
+
+    <p>
+        <h2>Usage Examples</h2>
+<pre>
+    Using curl:     # Download
+                    curl --output /dev/null {{ url_for('download_file', generator='random', sz=1, unit='gb', _external=True) }}
+                    # Upload
+                    dd if=/dev/urandom bs=1000 count=100000 | curl -w '%{json}' --data-binary @- {{ url_for('upload_file', _external=True) }}
+                    # Optional parameters:
+                    #   --http1.1     -> force http version 1.1 (mostly default)
+                    #   --http2       -> force http version 2 which supports multiplexing
+
+    Using wget:     wget -O /dev/null {{ url_for('download_file', generator='random', sz=1, unit='gb', _external=True) }}
+                    # Optional parameters:
+                    #   --report-speed=bits     -> report measured rate in bit rather than bytes per second
+</pre>
     </p>
 
     <p style="text-align: center"><a href="https://github.com/firefrei/filespeed" target="_blank">source code</a></p>
