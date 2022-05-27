@@ -23,7 +23,7 @@ Image on Docker Hub: https://hub.docker.com/r/firefrei/filespeed
 docker run --rm --name filespeed firefrei/filespeed
 ```
 
-Access http://localhost:5000 in your browser!
+Access http://localhost:8000 in your browser!
 
 
 ## Client examples
@@ -31,10 +31,10 @@ Access http://localhost:5000 in your browser!
 Using curl:
 ```bash
 # Download
-curl --output /dev/null http://localhost:5000/file/random/10/gb
+curl --output /dev/null http://localhost:8000/file/random/10/gb
 
 # Upload
-dd if=/dev/urandom bs=1000 count=100000 | curl -w '%{json}' --data-binary @- http://localhost:5000/file/upload
+dd if=/dev/urandom bs=1000 count=100000 | curl -w '%{json}' --data-binary @- http://localhost:8000/file/upload
 
 # Optional parameters:
 #   --http1.1     -> force http version 1.1 (mostly default)
@@ -43,7 +43,7 @@ dd if=/dev/urandom bs=1000 count=100000 | curl -w '%{json}' --data-binary @- htt
 
 Using wget:
 ```bash
-wget -O /dev/null http://localhost:5000/file/random/10/gb
+wget -O /dev/null http://localhost:8000/file/random/10/gb
 
 # Optional parameters:
 #   --report-speed=bits     -> report measured rate in bit rather than bytes per second
@@ -51,5 +51,5 @@ wget -O /dev/null http://localhost:5000/file/random/10/gb
 
 Using [robot framework](https://robotframework.org):
 ```bash
-robot --variable HOST:localhost:5000 client_examples/filespeedtest.robot
+robot --variable HOST:localhost:8000 client_examples/filespeedtest.robot
 ```

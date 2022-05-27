@@ -1,6 +1,6 @@
 FROM python:3-alpine
 
-ENV PORT 5000
+ENV PORT 8000
 ENV WORKERS 5
 
 
