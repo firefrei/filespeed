@@ -56,8 +56,9 @@ Evaluate Download Metrics
     # Should Be True    ${DOWNLOAD_METRICS.time_connect} < 1.0    Verifying maximum connection setup time    # indicator for RTT
     # Should Be True    ${DOWNLOAD_METRICS.time_total} < 60.0    Verifying maximum download time
     # ... see end of file or curl manpage for possible parameters
+    ${dl_rate} =    evaluate    float(${DOWNLOAD_METRICS.speed_download}*8/1000000)
     IF    ${TEST_DL_RATE} > 0.0
-        Should Be True    (${DOWNLOAD_METRICS.speed_download}*8/1000000) >= ${TEST_DL_RATE}    Verifying minimum download speed above ${TEST_DL_RATE} mbps   # 1 mbps = 125000 bytes/sec
+        Should Be True    ${dl_rate} >= ${TEST_DL_RATE}    Verifying minimum download speed above ${TEST_DL_RATE} mbps: reached ${dl_rate}.   # 1 mbps = 125000 bytes/sec
     END
 
 Log Download Metrics
@@ -86,8 +87,9 @@ Evaluate Upload Metrics
     # Should Be True    ${UPLOAD_METRICS.time_connect} < 1.0    Verifying maximum connection setup time    # indicator for RTT
     # Should Be True    ${UPLOAD_METRICS.time_total} < 60.0    Verifying maximum upload time
     # ... see end of file or curl manpage for possible parameters
+    ${ul_rate} =    evaluate    float(${UPLOAD_METRICS.speed_upload}*8/1000000)
     IF    ${TEST_UL_RATE} > 0.0
-        Should Be True    (${UPLOAD_METRICS.speed_upload}*8/1000000) >= ${TEST_UL_RATE}    Verifying minimum upload speed above ${TEST_UL_RATE} mbps   # 1 mbps = 125000 bytes/sec
+        Should Be True    ${ul_rate} >= ${TEST_UL_RATE}    Verifying minimum upload speed above ${TEST_UL_RATE} mbps: reached ${ul_rate}.   # 1 mbps = 125000 bytes/sec
     END
 
 Log Upload Metrics
