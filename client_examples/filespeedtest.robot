@@ -1,45 +1,66 @@
 *** Settings ***
-Documentation    Test suite for evaluating download performance using curl and filespeed.
+Documentation    Test suite for evaluating download and upload performance using curl and filespeed.
 ...              This can be used to check the capacity of a connection.
-...              Requires: 'curl' in a version that supports json output formatting with "-w" parameter
+...              Requires: 
+...                - `curl` in a version that supports json output formatting with "-w" parameter
+...                - `dd` for upload case
 ...              
 ...              Call example: `robot --variable HOST:filespeed filespeedtest.robot`
-Metadata    Version        1.0
-Metadata    More Info      For more information about *filespeed* check https://github.com/firefrei/filespeed
+Metadata    Version        1.1
+Metadata    Server Info    For more information about *filespeed* check https://github.com/firefrei/filespeed
 Metadata    Remote Server  ${HOST}
+Metadata    File Size      ${SIZE}mb
 
 Library    Collections
 Library    Process
 
 
 *** Variables ***
-${SIZE}       100
-${UNIT}       mb
+# Connection settings
+${SIZE}       100               # unit: mb
 ${GENERATOR}  random
 ${PROTOCOL}   http
 ${HOST}       filespeed
-${URL}        ${PROTOCOL}://${HOST}/file/${GENERATOR}/${SIZE}/${UNIT}
+${URL_DL}     ${PROTOCOL}://${HOST}/file/${GENERATOR}/${SIZE}/mb
+${URL_UL}     ${PROTOCOL}://${HOST}/file/upload
 ${CONNECT_TIMEOUT}    10
+
+# Evaluation settings
+${TEST_DL_RATE}        0.0      # unit: mbps
+${TEST_DL_DURATION}    600      # unit: sec, used as download timeout
+${TEST_UL_RATE}        0.0      # unit: mbps
+${TEST_UL_DURATION}    600      # unit: sec, used as upload timeout
 
 
 *** Test Case ***
 Case Download
     [Tags]    download
     Run Download
-    Log Download
-    Verify Download
+    Log Download Metrics
+    Evaluate Download Metrics
+
+Case Upload
+    [Tags]    upload
+    Run Upload
+    Log Upload Metrics
+    Evaluate Upload Metrics
 
 
 *** Keywords ***
-Verify Download
-    Should Be True    ${DOWNLOAD_METRICS.http_code} == 200    Verifying HTTP status/error code
-    # Should Be True    ${DOWNLOAD_METRICS.size_download} == 100000000    Verifying correct number of loaded bytes
+#
+# Download
+#
+Evaluate Download Metrics
+    Should Be True    ${DOWNLOAD_METRICS.http_code} == 200    Verifying HTTP status/error code: ${DOWNLOAD_METRICS.http_code} != 200
+    Should Be True    ${DOWNLOAD_METRICS.size_download} == (${SIZE}*1000000)    Verifying correct number of loaded bytes
     # Should Be True    ${DOWNLOAD_METRICS.time_connect} < 1.0    Verifying maximum connection setup time    # indicator for RTT
     # Should Be True    ${DOWNLOAD_METRICS.time_total} < 60.0    Verifying maximum download time
-    # Should Be True    ${DOWNLOAD_METRICS.speed_download} >= 125000    Verifying minimum download speed    # 1 mbps = 125000 bytes/sec
     # ... see end of file or curl manpage for possible parameters
+    IF    ${TEST_DL_RATE} > 0.0
+        Should Be True    (${DOWNLOAD_METRICS.speed_download}*8/1000000) >= ${TEST_DL_RATE}    Verifying minimum download speed above ${TEST_DL_RATE} mbps   # 1 mbps = 125000 bytes/sec
+    END
 
-Log Download
+Log Download Metrics
     Log Many    &{DOWNLOAD_METRICS}
     Log To Console     Download Metrics:
     FOR    ${key}    ${value}    IN    &{DOWNLOAD_METRICS}
@@ -48,12 +69,42 @@ Log Download
 
 Run Download
     Log To Console     Running Download...
-    ${download}    Run Process    curl -v -w '\%{json}' --connect-timeout ${CONNECT_TIMEOUT} --output /dev/null "${URL}"    shell=True    alias=curlproc
+    ${download}     Run Process    curl -v -w '\%{json}' --connect-timeout ${CONNECT_TIMEOUT} --max-time ${TEST_DL_DURATION} --output /dev/null "${URL_DL}"    shell=True
     Log    ${download.stdout}
     Log    ${download.stderr}
     Should Be Equal As Integers    ${download.rc}    0    Verifying curl return code
     &{res} =    evaluate    json.loads('''${download.stdout}''')    json
     Set Suite Variable    &DOWNLOAD_METRICS    &{res}
+    [Return]    &{res}
+
+#
+# Upload
+#
+Evaluate Upload Metrics
+    Should Be True    ${UPLOAD_METRICS.http_code} == 200    Verifying HTTP status/error code: ${UPLOAD_METRICS.http_code} != 200
+    Should Be True    ${UPLOAD_METRICS.size_upload} == (${SIZE}*1000000)    Verifying correct number of loaded bytes
+    # Should Be True    ${UPLOAD_METRICS.time_connect} < 1.0    Verifying maximum connection setup time    # indicator for RTT
+    # Should Be True    ${UPLOAD_METRICS.time_total} < 60.0    Verifying maximum upload time
+    # ... see end of file or curl manpage for possible parameters
+    IF    ${TEST_UL_RATE} > 0.0
+        Should Be True    (${UPLOAD_METRICS.speed_upload}*8/1000000) >= ${TEST_UL_RATE}    Verifying minimum upload speed above ${TEST_UL_RATE} mbps   # 1 mbps = 125000 bytes/sec
+    END
+
+Log Upload Metrics
+    Log Many    &{UPLOAD_METRICS}
+    Log To Console     Upload Metrics:
+    FOR    ${key}    ${value}    IN    &{UPLOAD_METRICS}
+        Log To Console    - ${key}: ${value}
+    END
+
+Run Upload
+    Log To Console     Running Upload...
+    ${upload}     Run Process     dd if\=/dev/urandom bs\=1000 count\=${${SIZE} * 1000} | curl -v -w '\%{json}' --connect-timeout ${CONNECT_TIMEOUT} --max-time ${TEST_UL_DURATION} --output /dev/null --data-binary @- "${URL_UL}"    shell=True
+    Log    ${upload.stdout}
+    Log    ${upload.stderr}
+    Should Be Equal As Integers    ${upload.rc}    0    Verifying curl return code
+    &{res} =    evaluate    json.loads('''${upload.stdout}''')    json
+    Set Suite Variable    &UPLOAD_METRICS    &{res}
     [Return]    &{res}
 
 
