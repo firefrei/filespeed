@@ -1,9 +1,22 @@
 import os
+import time
 from math import ceil
 from quart import Quart, request, render_template, make_response
+from async_timeout import timeout
+
 
 app = Quart(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 10**10
 
+def calc_timeout(payload_size) -> int:
+    """
+    determine timeout limit: 
+    - min: 60s
+    - max: 3600s
+    - normal: 6 minutes per gigabyte or user defined
+    """
+    timeout = max(ceil(payload_size/(10**9) * 6 * 60), 60)
+    return int(min(timeout, 3600))
 
 @app.route('/')
 async def index():
@@ -11,7 +24,7 @@ async def index():
 
 @app.route('/file/<generator>/<int:sz>')
 @app.route('/file/<generator>/<int:sz>/<unit>')
-async def generate_file(sz, unit="mb", generator="random"):
+async def download_file(sz, unit="mb", generator="random"):
     args = request.args
     generator = generator if generator in ["random", "zero"] else "random"
 
@@ -73,7 +86,7 @@ async def generate_file(sz, unit="mb", generator="random"):
     # - max: 3600s
     # - normal: 6 minutes per gigabyte or user defined
     response.timeout = args.get("timeout",
-        default = max(ceil(content_bytes/(10**9) * 6 * 60), 60),
+        default = calc_timeout(content_bytes),
         type = int)
     response.timeout = int(min(response.timeout, 3600))
     
@@ -85,3 +98,27 @@ async def generate_file(sz, unit="mb", generator="random"):
     })
 
     return response
+
+@app.route('/file/upload', methods=['POST'])
+async def upload_file():
+    timeout_val = calc_timeout(request.content_length)
+
+    payload_size = 0
+    time_start = time.time()
+    async with timeout(timeout_val):
+        async for data in request.body:
+            payload_size += len(data)
+    time_end = time.time()
+    
+    # Create Response
+    data = {
+        "payload_size": payload_size,
+        "time_total": time_end - time_start
+    }
+    headers = {
+        "filespeed-timeout": timeout_val,
+        "filespeed-max-content-length": request.max_content_length
+    }
+    status_code = 200
+
+    return data, status_code, headers
