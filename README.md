@@ -52,4 +52,11 @@ wget -O /dev/null http://localhost:8000/file/random/10/gb
 Using [robot framework](https://robotframework.org):
 ```bash
 robot --variable HOST:localhost:8000 client_examples/filespeedtest.robot
+# Optional parameters:
+#   --variable SIZE:100              -> amount of data to download and upload in mb
+#   --variable GENERATOR:random      -> filespeed generator to use for downloads
+#   --variable TEST_DL_RATE:50       -> minimum average download rate in mbps
+#   --variable TEST_UL_RATE:30       -> minimum average upload rate in mbps
+#   --variable TEST_DL_DURATION:600  -> maximum time in seconds the download may take (timeout)
+#   --variable TEST_DL_DURATION:600  -> maximum time in seconds the upload may take (timeout)
 ```
