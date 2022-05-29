@@ -1,68 +1,312 @@
 <!doctype html>
+<html lang="en">
 
 <head>
-    <title>==filespeed===> HTTP payload generator service for client-side speed tests and connection benchmarks</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/beer.min.css') }}">
+  <title>==filespeed===> HTTP payload generator service for client-side speed tests and connection benchmarks</title>
 </head>
 
 <body>
-    <h1 style="text-align: right">[=====filespeed===============>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]</h1>
-    <h2>File Download</h2>
-    <p>
-<pre>
-    <i>URL-Format:&nbsp;</i> <b>/</b>file<b>/</b>{generator => random | zero}<b>/</b>{filesize}<b>/</b>{unit => b | kb | kib | mb | mib | gb | gib | tb | tib; default: mb}
-    <i>URL-Example:</i> {{ url_for('download_file', generator='random', sz=1, unit='mb') }}
-    <i>Optional HTTP-GET Parameters:</i>
-        - chunk_size = bytes to read from content generator respectively to send per iteration (default: 8192)
-        - timeout = seconds until connection is closed on server side (default: six minutes per gigabyte. max: 1h)
-</pre>
+
+  <header class="padding secondary">
+    <div class="row no-wrap middle-align">
+      <div class="col min ">
+        <a href="#download">
+          <i>download</i>
+          <div>Download</div>
+        </a>
+      </div>
+      <div class="col min">
+        <a href="#upload">
+          <i>upload</i>
+          <div>Upload</div>
+        </a>
+      </div>
+      <div class="col min">
+        <a href="#examples">
+          <i>code</i>
+          <div>Examples</div>
+        </a>
+      </div>
+
+      <div class="col"></div>
+
+      <div class="col min">
+        <a href="{{ url_for('index') }}"
+          class="bold chip yellow-border border yellow-text">[=====filespeed===============>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]</a>
+      </div>
+    </div>
+  </header>
 
 
-    <h3>Generator: Random</h3>
-    <ul>
-        <li><a href="{{ url_for('download_file', generator='random', sz=500, unit='kb') }}">500 KB</a></li>
-        <li><a href="{{ url_for('download_file', generator='random', sz=1, unit='mb') }}">1 MB</a></li>
-        <li><a href="{{ url_for('download_file', generator='random', sz=500, unit='mb') }}">500 MB</a></li>
-        <li><a href="{{ url_for('download_file', generator='random', sz=1, unit='gb') }}">1 GB</a></li>
-        <li><a href="{{ url_for('download_file', generator='random', sz=10, unit='gb') }}">10 GB</a></li>
-    </ul>
 
-    <h3>Generator: Zero</h3>
-    <ul>
-        <li><a href="{{ url_for('download_file', generator='zero', sz=500, unit='kb') }}">500 KB</a></li>
-        <li><a href="{{ url_for('download_file', generator='zero', sz=1, unit='mb') }}">1 MB</a></li>
-        <li><a href="{{ url_for('download_file', generator='zero', sz=500, unit='mb') }}">500 MB</a></li>
-        <li><a href="{{ url_for('download_file', generator='zero', sz=1, unit='gb') }}">1 GB</a></li>
-        <li><a href="{{ url_for('download_file', generator='zero', sz=10, unit='gb') }}">10 GB</a></li>
-    </ul>
+  <main class="container">
+    <div class="row">
+
+      {% if upload %}
+      <div class="col s12">
+        <article class="flat large-padding large-margin green white-text" id="upload-result">
+          <h4>Upload Result</h4>
+          <ul class="small-padding">
+            <li>Received payload size: {{upload.0.payload_size}} bytes</li>
+            <li>Processing time on server: {{upload.0.time_total}} seconds</li>
+            <li>Upload rate average: {{upload.0.upload_rate_avg}} mbps</li>
+          </ul>
+          <!-- {{upload}} -->
+        </article>
+      </div>
+      {% endif %}
+
+      <div class="col s12">
+        <article class="flat large-padding" id="download">
+          <h4>File Download</h4>
+
+          <details class="card large-margin deep-purple1">
+            <summary class="none">
+              <div class="row no-wrap middle-align">
+                <div class="col">
+                  <div>URL-Format</div>
+                  <div class="small-text">/file/{generator}/{filesize}/{unit}</div>
+                </div>
+                <div class="col min">
+                  <i>more_vert</i>
+                </div>
+              </div>
+            </summary>
+            <div class="space"></div>
+            <div>
+              <span class="italic">URL-Example:</span> {{ url_for('download_file', generator='random', sz=1, unit='mb', _external=True) }}
+              <div class="space"></div>
+              <span class="italic">URL-Parameter:</span>
+              <div class="row">
+                <div class="col s12 m12 l8">
+                  <table class="space border">
+                    <tbody>
+                      <tr>
+                        <td>generator</td>
+                        <td>=></td>
+                        <td>random | zero</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>unit</td>
+                        <td>=></td>
+                        <td>b | kb | kib | mb | mib | gb | gib | tb | tib</td>
+                        <td>default: mb</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="space"></div>
+              <span class="italic">Optional HTTP-GET Parameters:</span>
+              <ul class="small-padding">
+                <li>chunk_size = bytes to read from content generator respectively to send per iteration (default: 8192)
+                </li>
+                <li>timeout = seconds until connection is closed on server side (default: six minutes per gigabyte. max:
+                  1h)</li>
+              </ul>
+            </div>
+
+          </details>
+
+          <div class="row">
+            <div class="col s12 m12 l6">
+              <h5>Generator: Random</h5>
+              <nav class="wrap">
+                <a class="chip small left-round top-round"
+                  href="{{ url_for('download_file', generator='random', sz=500, unit='kb') }}">500
+                  KB</a>
+                <a class="chip small left-round top-round"
+                  href="{{ url_for('download_file', generator='random', sz=1, unit='mb') }}">1
+                  MB</a>
+                <a class="chip small left-round top-round"
+                  href="{{ url_for('download_file', generator='random', sz=500, unit='mb') }}">500
+                  MB</a>
+                <a class="chip small left-round top-round"
+                  href="{{ url_for('download_file', generator='random', sz=1, unit='gb') }}">1
+                  GB</a>
+                <a class="chip small left-round top-round"
+                  href="{{ url_for('download_file', generator='random', sz=10, unit='gb') }}">10
+                  GB</a>
+              </nav>
+            </div>
+
+            <div class="col s12 m12 l6">
+              <h5>Generator: Zero</h5>
+              <nav class="wrap">
+                <a class="chip small left-round top-round"
+                  href="{{ url_for('download_file', generator='zero', sz=500, unit='kb') }}">500
+                  KB</a>
+                <a class="chip small left-round top-round"
+                  href="{{ url_for('download_file', generator='zero', sz=1, unit='mb') }}">1 MB</a>
+                <a class="chip small left-round top-round"
+                  href="{{ url_for('download_file', generator='zero', sz=500, unit='mb') }}">500
+                  MB</a>
+                <a class="chip small left-round top-round"
+                  href="{{ url_for('download_file', generator='zero', sz=1, unit='gb') }}">1 GB</a>
+                <a class="chip small left-round top-round"
+                  href="{{ url_for('download_file', generator='zero', sz=10, unit='gb') }}">10 GB</a>
+              </nav>
+            </div>
+
+            <div class="col s12">
+              <h5>Compose own file</h5>
+              <form
+                onsubmit="this.action = '/file/' + this.dl_generator.options[this.dl_generator.selectedIndex].value + '/' + this.dl_size.value + '/' + this.dl_unit.options[this.dl_unit.selectedIndex].value;"
+                method="GET">
+                <div class="row">
+                  <div class="col s3 field small suffix border round">
+                    <select id="dl_generator">
+                      <option value="random" selected>Random</option>
+                      <option value="zero">Zero</option>
+                    </select>
+                    <i>arrow_drop_down</i>
+                    <span class="helper">Content Generator</span>
+                  </div>
+
+                  <div class="col s3 field small suffix border round">
+                    <input type="number" id="dl_size" value="10" min="0" step="1">
+                    <span class="helper">File size</span>
+                  </div>
+
+                  <div class="col s3 field small suffix border round">
+                    <select id="dl_unit">
+                      <option value="b">Bytes</option>
+                      <option value="kb">Kilobytes</option>
+                      <option value="mb" selected>Megabytes</option>
+                      <option value="gb">Gigabytes</option>
+                      <option value="tb">Terrabytes</option>
+                      <option value="kib">Kibibytes</option>
+                      <option value="mib">Mebibytes</option>
+                      <option value="gib">Gibibytes</option>
+                      <option value="tib">Tebibytes</option>
+                    </select>
+                    <i>arrow_drop_down</i>
+                    <span class="helper">File size unit</span>
+                  </div>
+
+                  <div class="col s3 field">
+                    <button type="submit" class="small top">Download</button>
+                  </div>
+
+                  <div class="col s12" style="padding-top:0;">
+                    <details>
+                      <summary>Advanced parameters</summary>
+                      <div class="row">
+                        <div class="col s3 field small suffix border round">
+                          <input type="number" id="dl_chunk_size" name="chunk_size" value="8192" min="0" step="1">
+                          <span class="helper">Chunk size (bytes)</span>
+                        </div>
+                        <div class="col s3 field small suffix border round">
+                          <input type="number" id="dl_timeout" name="timeout" min="0" step="1">
+                          <span class="helper">Timeout (seconds)</span>
+                        </div>
+                      </div>
+                    </details>
+                  </div>
+
+                </div>
+
+              </form>
+            </div>
+          </div>
+
+        </article>
+      </div>
+
+      <div class="col s12">
+        <article class="flat large-padding" id="upload">
+          <h4>File Upload</h4>
+
+          <details class="card large-margin deep-purple1">
+            <summary>
+              <div class="row no-wrap middle-align">
+                <div class="col">
+                  <div>URL-Format</div>
+                  <div class="small-text">{{ url_for('upload_file') }}</div>
+                </div>
+                <div class="col min">
+                  <i>more_vert</i>
+                </div>
+              </div>
+            </summary>
+            <p>
+              <span class="italic">HTTP-Method:</span> POST
+            </p>
+          </details>
+
+          <form action="{{ url_for('index_post') }}" method="POST" enctype="multipart/form-data"
+            onsubmit="document.getElementById('upload-loader').classList.remove('no-opacity')">
+            <div class="row">
+              <div class="col s6">
+
+                <div class="field label prefix suffix border small">
+                  <i>attach_file</i>
+                  <input type="text">
+                  <input type="file" name="upload_file" required>
+                  <label>Choose file to upload</label>
+                  <i>attach_file</i>
+                </div>
+              </div>
+
+              <div class="col s6">
+                <button type="submit">Send to server</button>
+                <a class="loader medium pink no-opacity" id="upload-loader"></a>
+              </div>
+            </div>
+          </form>
+
+        </article>
+      </div>
+
+      <div class="col s12">
+        <article class="flat large-padding" id="examples">
+          <h4>Usage Examples</h4>
+
+          <article class="border">
+            <h5>Using curl</h5>
+            <p>
+              <code>
+              # Download<br>
+              curl --output /dev/null {{ url_for('download_file', generator='random', sz=1, unit='gb', _external=True) }}<br>
+              # Upload<br>
+              dd if=/dev/urandom bs=1000 count=100000 | curl -w '%{json}' --data-binary @- {{ url_for('upload_file', _external=True) }}<br>
+              <br>
+              # Optional parameters:<br>
+              #   --http1.1     -> force http version 1.1 (mostly default)<br>
+              #   --http2       -> force http version 2 which supports multiplexing
+              </code>
+            </p>
+          </article>
+
+
+          <article class="border">
+            <h5>Using wget</h5>
+            <p>
+              <code>
+              wget -O /dev/null {{ url_for('download_file', generator='random', sz=1, unit='gb', _external=True) }}<br>
+              <br>
+              # Optional parameters:<br>
+              #   --report-speed=bits     -> report measured rate in bit rather than bytes per second
+              </code>
+            </p>
+          </article>
+
+        </article>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <p style="text-align: center;">
+      <a href="https://github.com/firefrei/filespeed" target="_blank">source code</a>
     </p>
-
-    <br>
-
-    <h2>File Upload</h2>
-    <p>
-<pre>
-    <i>URL-Format:&nbsp;</i> <b>/</b>file<b>/</b>upload
-    <i>HTTP-Method:</i> POST
-</pre>
-    </p>
-
-    <p>
-        <h2>Usage Examples</h2>
-<pre>
-    Using curl:     # Download
-                    curl --output /dev/null {{ url_for('download_file', generator='random', sz=1, unit='gb', _external=True) }}
-                    # Upload
-                    dd if=/dev/urandom bs=1000 count=100000 | curl -w '%{json}' --data-binary @- {{ url_for('upload_file', _external=True) }}
-                    # Optional parameters:
-                    #   --http1.1     -> force http version 1.1 (mostly default)
-                    #   --http2       -> force http version 2 which supports multiplexing
-
-    Using wget:     wget -O /dev/null {{ url_for('download_file', generator='random', sz=1, unit='gb', _external=True) }}
-                    # Optional parameters:
-                    #   --report-speed=bits     -> report measured rate in bit rather than bytes per second
-</pre>
-    </p>
-
-    <p style="text-align: center"><a href="https://github.com/firefrei/filespeed" target="_blank">source code</a></p>
-
+  </footer>
 </body>
+
+</html>

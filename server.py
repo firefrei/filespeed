@@ -18,9 +18,16 @@ def calc_timeout(payload_size) -> int:
     timeout = max(ceil(payload_size/(10**9) * 6 * 60), 60)
     return int(min(timeout, 3600))
 
+
 @app.route('/')
 async def index():
     return await render_template('index.html')
+
+@app.route('/', methods=['POST'])
+async def index_post():
+    upload = await upload_file()
+    return await render_template('index.html', upload=upload)
+
 
 @app.route('/file/<generator>/<int:sz>')
 @app.route('/file/<generator>/<int:sz>/<unit>')
@@ -103,17 +110,37 @@ async def download_file(sz, unit="mb", generator="random"):
 async def upload_file():
     timeout_val = calc_timeout(request.content_length)
 
+    measured_rates = []
+    total_payload_size = 0
     payload_size = 0
+    total_time_start = time.time()
     time_start = time.time()
     async with timeout(timeout_val):
         async for data in request.body:
-            payload_size += len(data)
-    time_end = time.time()
+            size = len(data)
+            payload_size += size
+            total_payload_size += size
+
+            # Calculate upload rate
+            time_now = time.time()
+            time_delta = time_now-time_start
+            if time_delta >= 1.0:
+                measured_rates.append(float(payload_size/time_delta))
+                time_start = time_now
+                payload_size = 0
+    
+    # Calculate upload rate
+    if payload_size > 0:
+        time_delta = time.time()-time_start
+        measured_rates.append(float(payload_size/time_delta))
+
+    total_time_end = time.time()
     
     # Create Response
     data = {
-        "payload_size": payload_size,
-        "time_total": time_end - time_start
+        "payload_size": total_payload_size,
+        "time_total": total_time_end - total_time_start,
+        "upload_rate_avg": round((sum(measured_rates) / len(measured_rates)) * 8 / 1000000, 2)
     }
     headers = {
         "filespeed-timeout": timeout_val,
