@@ -18,9 +18,16 @@ def calc_timeout(payload_size) -> int:
     timeout = max(ceil(payload_size/(10**9) * 6 * 60), 60)
     return int(min(timeout, 3600))
 
+
 @app.route('/')
 async def index():
     return await render_template('index.html')
+
+@app.route('/', methods=['POST'])
+async def index_post():
+    upload = await upload_file()
+    return await render_template('index.html', upload=upload)
+
 
 @app.route('/file/<generator>/<int:sz>')
 @app.route('/file/<generator>/<int:sz>/<unit>')

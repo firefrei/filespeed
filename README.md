@@ -60,3 +60,9 @@ robot --variable HOST:localhost:8000 client_examples/filespeedtest.robot
 #   --variable TEST_DL_DURATION:600  -> maximum time in seconds the download may take (timeout)
 #   --variable TEST_UL_DURATION:600  -> maximum time in seconds the upload may take (timeout)
 ```
+
+## Dependencies
+Filespeed is shiped with a compiled and minified version of [beercss](https://github.com/beercss/beercss), which is licensed under MIT.
+
+## Screenshot
+![Filespeed WebUI](static/img/screenshot.png)
