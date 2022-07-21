@@ -9,9 +9,11 @@ ENV WORKERS 5
 COPY . /app
 WORKDIR /app
 
-RUN apk add --no-cache openssl \
+RUN apk add --no-cache --virtual builddeps build-base bsd-compat-headers openssl-dev \
+    && apk add --no-cache openssl \
     && pip install -r requirements.txt \
-    && pip install hypercorn[3] aioquic
+    && pip install hypercorn[3] aioquic \
+    && apk del --purge builddeps
 
 VOLUME ["/app/certs"]
 
