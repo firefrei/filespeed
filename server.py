@@ -4,6 +4,7 @@ from math import ceil
 from quart import Quart, request, render_template, make_response
 from async_timeout import timeout
 
+from settings import Settings
 
 app = Quart(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 10**10
@@ -18,15 +19,39 @@ def calc_timeout(payload_size) -> int:
     timeout = max(ceil(payload_size/(10**9) * 6 * 60), 60)
     return int(min(timeout, 3600))
 
+async def collect_conn_info(request):
+    if request.server[1] == Settings.port_http:
+        http_server = 'http'
+    elif request.server[1] == Settings.port_https:
+        http_server = 'https'
+    elif request.server[1] == Settings.port_https_quic:
+        http_server = 'quic'
+    else:
+        raise RuntimeError("Unknown server type")
+
+    return {
+        'http_version': request.http_version,
+        'http_scheme': request.scheme,
+        'http_method': request.method,
+        'http_server': http_server,
+        'host': request.server[0]
+    }
 
 @app.route('/')
 async def index():
-    return await render_template('index.html')
+    return await render_template('index.html', 
+        conn_info=await collect_conn_info(request),
+        settings=Settings.__dict__
+        )
 
 @app.route('/', methods=['POST'])
 async def index_post():
     upload = await upload_file()
-    return await render_template('index.html', upload=upload)
+    return await render_template('index.html', 
+        upload=upload,
+        conn_info=await collect_conn_info(request),
+        settings=Settings.__dict__
+        )
 
 
 @app.route('/file/<generator>/<int:sz>')
@@ -79,7 +104,7 @@ async def download_file(sz, unit="mb", generator="random"):
             yield zeroes if size == chunk_bytes else bytes(size)
 
     generator_fun = generate_zero if generator == "zero" else generate_random
-    
+
     # Create response object
     response = await make_response(generator_fun())
     response.headers.update({
@@ -88,7 +113,7 @@ async def download_file(sz, unit="mb", generator="random"):
             "Content-Disposition": "attachment; filename=%d.bin" % (content_bytes)
         })
 
-    # define timeout limit: 
+    # define timeout limit:
     # - min: 60s
     # - max: 3600s
     # - normal: 6 minutes per gigabyte or user defined
@@ -96,7 +121,7 @@ async def download_file(sz, unit="mb", generator="random"):
         default = calc_timeout(content_bytes),
         type = int)
     response.timeout = int(min(response.timeout, 3600))
-    
+
     # Finally, add filespeed info headers
     response.headers.update({
         "filespeed-generator": generator,
@@ -128,14 +153,14 @@ async def upload_file():
                 measured_rates.append(float(payload_size/time_delta))
                 time_start = time_now
                 payload_size = 0
-    
+
     # Calculate upload rate
     if payload_size > 0:
         time_delta = time.time()-time_start
         measured_rates.append(float(payload_size/time_delta))
 
     total_time_end = time.time()
-    
+
     # Create Response
     data = {
         "payload_size": total_payload_size,

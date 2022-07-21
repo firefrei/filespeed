@@ -11,7 +11,7 @@ Filespeed offers an index page with download links of example sizes. For more fl
 ### Features
 - dynamic file content generation with URL parameter based configuration
 - multiple payload generators: random and zero bytes
-- support of http1.1 and http2.0 (without TLS/SSL)
+- support of http1.1, http2.0 (without TLS/SSL) and http3/quic (with TLS/SSL). All via seperate ports.
 - compression disabled
   
 Source on GitHub: https://github.com/firefrei/filespeed  
@@ -24,6 +24,11 @@ docker run --rm --name filespeed firefrei/filespeed
 ```
 
 Access http://localhost:8000 in your browser!
+  
+The default ports are:
+- 8000 for insecure http (HTTP 1.0/1.1)
+- 8001 for secure https (HTTP 1.1/2.0)
+- 8002 for QUIC via HTTP3 (only!)
 
 
 ## Client examples
@@ -38,7 +43,8 @@ dd if=/dev/urandom bs=1000 count=100000 | curl -w '%{json}' --data-binary @- htt
 
 # Optional parameters:
 #   --http1.1     -> force http version 1.1 (mostly default)
-#   --http2       -> force http version 2 which supports multiplexing
+#   --http2       -> force http version 2 which supports multiplexing (recommended to use HTTPS port)
+#   --http3       -> force http version 3 with quic
 ```
 
 Using wget:
