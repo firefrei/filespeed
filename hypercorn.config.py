@@ -19,4 +19,4 @@ quic_bind = ["0.0.0.0:%s" % (getenv("PORT_QUIC", 8002)), "[::]:%s" % (getenv("PO
 
 certfile = getenv("CERTFILE", "certs/server.crt")
 keyfile = getenv("KEYFILE", "certs/server.key")
-workers = getenv("WORKERS", 5)
+workers = int(getenv("WORKERS", 5))
