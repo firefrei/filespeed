@@ -11,7 +11,7 @@ WORKDIR /app
 
 RUN apk add --no-cache openssl \
     && pip install -r requirements.txt \
-    && pip install hypercorn[3]
+    && pip install hypercorn[3] aioquic
 
 VOLUME ["/app/certs"]
 
