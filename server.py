@@ -18,7 +18,6 @@ def calc_timeout(payload_size) -> int:
     timeout = max(ceil(payload_size/(10**9) * 6 * 60), 60)
     return int(min(timeout, 3600))
 
-
 @app.route('/')
 async def index():
     return await render_template('index.html')
@@ -79,7 +78,7 @@ async def download_file(sz, unit="mb", generator="random"):
             yield zeroes if size == chunk_bytes else bytes(size)
 
     generator_fun = generate_zero if generator == "zero" else generate_random
-    
+
     # Create response object
     response = await make_response(generator_fun())
     response.headers.update({
@@ -88,7 +87,7 @@ async def download_file(sz, unit="mb", generator="random"):
             "Content-Disposition": "attachment; filename=%d.bin" % (content_bytes)
         })
 
-    # define timeout limit: 
+    # define timeout limit:
     # - min: 60s
     # - max: 3600s
     # - normal: 6 minutes per gigabyte or user defined
@@ -96,7 +95,7 @@ async def download_file(sz, unit="mb", generator="random"):
         default = calc_timeout(content_bytes),
         type = int)
     response.timeout = int(min(response.timeout, 3600))
-    
+
     # Finally, add filespeed info headers
     response.headers.update({
         "filespeed-generator": generator,
@@ -128,14 +127,14 @@ async def upload_file():
                 measured_rates.append(float(payload_size/time_delta))
                 time_start = time_now
                 payload_size = 0
-    
+
     # Calculate upload rate
     if payload_size > 0:
         time_delta = time.time()-time_start
         measured_rates.append(float(payload_size/time_delta))
 
     total_time_end = time.time()
-    
+
     # Create Response
     data = {
         "payload_size": total_payload_size,
