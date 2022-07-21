@@ -8,4 +8,4 @@ class Settings:
 
     certfile = getenv("CERTFILE", "certs/server.crt")
     keyfile = getenv("KEYFILE", "certs/server.key")
-    workers = getenv("WORKERS", 5)
+    workers = int(getenv("WORKERS", 5))
