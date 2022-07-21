@@ -35,7 +35,7 @@
 
       <div class="col min">
         <a href="{{ url_for('index') }}"
-          class="bold chip yellow-border border yellow-text">[=====filespeed===============>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]</a>
+          class="chip yellow-text large-text">[=====filespeed===============>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]</a>
       </div>
     </div>
   </header>
@@ -58,6 +58,33 @@
         </article>
       </div>
       {% endif %}
+
+      <div class="col s12">
+        <article class="flat border" id="connection">
+          <b>Current Connection</b> via HTTP-Version {{ conn_info.http_version }}<br>
+          <nav class="">
+            <div>Available Interfaces:</div>
+            {% if conn_info.http_server == "http" %}
+            <a class="chip small right-round" role="link" aria-disabled="true"style="cursor: not-allowed">
+            {% else %}
+            <a class="chip border small right-round" href="http://{{ conn_info.host }}:{{ settings.port_http }}">
+            {% endif %}HTTP 1.1</a>
+
+            {% if conn_info.http_server == "https" %}
+            <a class="chip small right-round" role="link" aria-disabled="true"style="cursor: not-allowed">
+            {% else %}
+            <a class="chip border small right-round" href="https://{{ conn_info.host }}:{{ settings.port_https }}">
+            {% endif %}HTTPS 1.1/2.0</a>
+
+            {% if conn_info.http_server == "quic" %}
+            <a class="chip small right-round" role="link" aria-disabled="true"style="cursor: not-allowed">
+            {% else %}
+            <a class="chip border small right-round" href="https://{{ conn_info.host }}:{{ settings.port_https_quic }}">
+            <div class="tooltip">Works only with HTTP/3. Browser-support required.</div>
+            {% endif %}HTTPS 3/QUIC</a>
+          </nav>
+        </article>
+      </div>
 
       <div class="col s12">
         <article class="flat large-padding" id="download">

@@ -4,6 +4,7 @@ from math import ceil
 from quart import Quart, request, render_template, make_response
 from async_timeout import timeout
 
+from settings import Settings
 
 app = Quart(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 10**10
@@ -18,14 +19,39 @@ def calc_timeout(payload_size) -> int:
     timeout = max(ceil(payload_size/(10**9) * 6 * 60), 60)
     return int(min(timeout, 3600))
 
+async def collect_conn_info(request):
+    if request.server[1] == Settings.port_http:
+        http_server = 'http'
+    elif request.server[1] == Settings.port_https:
+        http_server = 'https'
+    elif request.server[1] == Settings.port_https_quic:
+        http_server = 'quic'
+    else:
+        raise RuntimeError("Unknown server type")
+
+    return {
+        'http_version': request.http_version,
+        'http_scheme': request.scheme,
+        'http_method': request.method,
+        'http_server': http_server,
+        'host': request.server[0]
+    }
+
 @app.route('/')
 async def index():
-    return await render_template('index.html')
+    return await render_template('index.html', 
+        conn_info=await collect_conn_info(request),
+        settings=Settings.__dict__
+        )
 
 @app.route('/', methods=['POST'])
 async def index_post():
     upload = await upload_file()
-    return await render_template('index.html', upload=upload)
+    return await render_template('index.html', 
+        upload=upload,
+        conn_info=await collect_conn_info(request),
+        settings=Settings.__dict__
+        )
 
 
 @app.route('/file/<generator>/<int:sz>')

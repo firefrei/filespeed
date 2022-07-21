@@ -13,9 +13,9 @@ if not exists("certs/server.key") or not exists("certs/server.crt"):
 
 # Hypercorn settings
 from os import getenv
-insecure_bind = ["0.0.0.0:%s" % (getenv("PORT_INSECURE", "8000")), "[::]:%s" % (getenv("PORT_INSECURE", "8000"))]
-bind = ["0.0.0.0:%s" % (getenv("PORT", "8001")), "[::]:%s" % (getenv("PORT", "8001"))]
-quic_bind = ["0.0.0.0:%s" % (getenv("PORT_QUIC", "8002")), "[::]:%s" % (getenv("PORT_QUIC", "8002"))]
+insecure_bind = ["0.0.0.0:%s" % (getenv("PORT_INSECURE", 8000)), "[::]:%s" % (getenv("PORT_INSECURE", 8000))]
+bind = ["0.0.0.0:%s" % (getenv("PORT", 8001)), "[::]:%s" % (getenv("PORT", 8001))]
+quic_bind = ["0.0.0.0:%s" % (getenv("PORT_QUIC", 8002)), "[::]:%s" % (getenv("PORT_QUIC", 8002))]
 
 certfile = getenv("CERTFILE", "certs/server.crt")
 keyfile = getenv("KEYFILE", "certs/server.key")
