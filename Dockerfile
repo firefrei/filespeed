@@ -9,8 +9,9 @@ ENV WORKERS 5
 COPY . /app
 WORKDIR /app
 
-RUN pip install -r requirements.txt
-RUN pip install hypercorn[3]
+RUN apk add --no-cache openssl \
+    && pip install -r requirements.txt \
+    && pip install hypercorn[3]
 
 VOLUME ["/app/certs"]
 
