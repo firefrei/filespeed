@@ -34,7 +34,7 @@ async def collect_conn_info(request):
         'http_scheme': request.scheme,
         'http_method': request.method,
         'http_server': http_server,
-        'host': request.server[0]
+        'host': request.host.split(':')[0]
     }
 
 @app.route('/')
