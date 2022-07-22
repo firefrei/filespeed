@@ -27,7 +27,7 @@ async def collect_conn_info(request):
     elif request.server[1] == Settings.port_https_quic:
         http_server = 'quic'
     else:
-        raise RuntimeError("Unknown server type")
+        http_server = None
 
     return {
         'http_version': request.http_version,
