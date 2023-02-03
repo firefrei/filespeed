@@ -19,7 +19,9 @@ RUN apk add --no-cache --virtual builddeps build-base bsd-compat-headers openssl
     && apk add --no-cache openssl \
     && pip install -r requirements.txt \
     && pip install hypercorn[3] aioquic \
-    && apk del --purge builddeps
+    && apk del --purge builddeps \
+    && mkdir -p /app/certs \
+    && chown -R ${UID}:${GID} /app/certs
 
 # Set user and group using IDs instead of names. Kubernetes needs this to identify non-root users.
 USER ${UID}:${GID}
