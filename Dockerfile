@@ -9,7 +9,14 @@ ENV PORT_HTTPS_QUIC 8002
 ENV WORKERS 5
 
 
-COPY . /app
+RUN addgroup -S -g ${GID} filespeed \
+  && adduser -S -u ${UID} -G filespeed filespeed
+
+# Set user and group using IDs instead of names. Kubernetes needs this to identify non-root users.
+USER ${UID}:${GID}
+
+
+COPY --chown=${UID}:${GID} . /app
 WORKDIR /app
 
 RUN apk add --no-cache --virtual builddeps build-base bsd-compat-headers openssl-dev \
@@ -17,12 +24,6 @@ RUN apk add --no-cache --virtual builddeps build-base bsd-compat-headers openssl
     && pip install -r requirements.txt \
     && pip install hypercorn[3] aioquic \
     && apk del --purge builddeps
-
-RUN addgroup -S -g ${GID} filespeed \
-  && adduser -S -u ${UID} -G filespeed filespeed
-
-# Set user and group using IDs instead of names. Kubernetes needs this to identify non-root users.
-USER ${UID}:${GID}
 
 
 VOLUME ["/app/certs"]
