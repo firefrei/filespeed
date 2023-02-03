@@ -1,19 +1,30 @@
 FROM python:3-alpine
 
+ENV GID 900
+ENV UID 900
+
 ENV PORT_HTTP 8000
 ENV PORT_HTTPS 8001
 ENV PORT_HTTPS_QUIC 8002
 ENV WORKERS 5
 
 
-COPY . /app
+RUN addgroup -S -g ${GID} filespeed \
+  && adduser -S -u ${UID} -G filespeed filespeed
+
+COPY --chown=${UID}:${GID} . /app
 WORKDIR /app
 
 RUN apk add --no-cache --virtual builddeps build-base bsd-compat-headers openssl-dev \
     && apk add --no-cache openssl \
     && pip install -r requirements.txt \
     && pip install hypercorn[3] aioquic \
-    && apk del --purge builddeps
+    && apk del --purge builddeps \
+    && mkdir -p /app/certs \
+    && chown -R ${UID}:${GID} /app/certs
+
+# Set user and group using IDs instead of names. Kubernetes needs this to identify non-root users.
+USER ${UID}:${GID}
 
 VOLUME ["/app/certs"]
 
