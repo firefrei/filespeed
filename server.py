@@ -10,14 +10,14 @@ from settings import Settings
 app = Quart(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 10**10
 
-def calc_timeout(payload_size) -> int:
+def calc_timeout(payload_size:int, user_timeout:int=None) -> int:
     """
     determine timeout limit: 
     - min: 60s
     - max: 3600s
     - normal: 6 minutes per gigabyte or user defined
     """
-    timeout = max(ceil(payload_size/(10**9) * 6 * 60), 60)
+    timeout = user_timeout if user_timeout else max(ceil(payload_size/(10**9) * 6 * 60), 60)
     return int(min(timeout, 3600))
 
 async def collect_conn_info(request):
@@ -114,14 +114,9 @@ async def download_file(sz, unit="mb", generator="random"):
             "Content-Disposition": "attachment; filename=%d.bin" % (content_bytes)
         })
 
-    # define timeout limit:
-    # - min: 60s
-    # - max: 3600s
-    # - normal: 6 minutes per gigabyte or user defined
-    response.timeout = args.get("timeout",
-        default = calc_timeout(content_bytes),
-        type = int)
-    response.timeout = int(min(response.timeout, 3600))
+    # Set server-side timeout for request
+    user_timeout = args.get("timeout", default=None, type=int)
+    response.timeout = calc_timeout(content_bytes, user_timeout)
 
     # Finally, add filespeed info headers
     response.headers.update({
@@ -134,13 +129,14 @@ async def download_file(sz, unit="mb", generator="random"):
 
 @app.route('/file/upload', methods=['POST'])
 async def upload_file():
-    timeout_val = calc_timeout(request.content_length)
+    user_timeout = request.args.get("timeout", default=None, type=int)
+    timeout_val = calc_timeout(request.content_length, user_timeout)
 
     measured_rates = []
     total_payload_size = 0
     payload_size = 0
     total_time_start = time.time()
-    time_start = time.time()
+    time_start = total_time_start
     try:
         status_code = 200
 
