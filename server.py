@@ -1,5 +1,6 @@
 import os
 import time
+import asyncio
 from math import ceil
 from quart import Quart, request, render_template, make_response
 from async_timeout import timeout
@@ -140,19 +141,25 @@ async def upload_file():
     payload_size = 0
     total_time_start = time.time()
     time_start = time.time()
-    async with timeout(timeout_val):
-        async for data in request.body:
-            size = len(data)
-            payload_size += size
-            total_payload_size += size
+    try:
+        status_code = 200
 
-            # Calculate upload rate
-            time_now = time.time()
-            time_delta = time_now-time_start
-            if time_delta >= 1.0:
-                measured_rates.append(float(payload_size/time_delta))
-                time_start = time_now
-                payload_size = 0
+        async with timeout(timeout_val):
+            async for data in request.body:
+                size = len(data)
+                payload_size += size
+                total_payload_size += size
+
+                # Calculate upload rate
+                time_now = time.time()
+                time_delta = time_now-time_start
+                if time_delta >= 1.0:
+                    measured_rates.append(float(payload_size/time_delta))
+                    time_start = time_now
+                    payload_size = 0
+            
+    except asyncio.TimeoutError:
+        status_code = 408   # 408 = request timeout
 
     # Calculate upload rate
     if payload_size > 0:
@@ -171,6 +178,5 @@ async def upload_file():
         "filespeed-timeout": timeout_val,
         "filespeed-max-content-length": request.max_content_length
     }
-    status_code = 200
 
     return data, status_code, headers
