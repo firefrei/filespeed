@@ -8,17 +8,17 @@ from async_timeout import timeout
 from settings import Settings
 
 app = Quart(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 10**10
+app.config['MAX_CONTENT_LENGTH'] = Settings.max_content_length
 
 def calc_timeout(payload_size:int, user_timeout:int=None) -> int:
     """
     determine timeout limit: 
-    - min: 60s
-    - max: 3600s
+    - min: Settings.timeout_min (e.g. 60s)
+    - max: Settings.timeout_max (e.g. 3600s)
     - normal: 6 minutes per gigabyte or user defined
     """
-    timeout = user_timeout if user_timeout else max(ceil(payload_size/(10**9) * 6 * 60), 60)
-    return int(min(timeout, 3600))
+    timeout = user_timeout if user_timeout else max(ceil(payload_size/(10**9) * 6 * 60), Settings.timeout_min)
+    return int(min(timeout, Settings.timeout_max))
 
 async def collect_conn_info(request):
     if request.server[1] == Settings.port_http:

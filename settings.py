@@ -9,3 +9,7 @@ class Settings:
     certfile = getenv("CERTFILE", "certs/server.crt")
     keyfile = getenv("KEYFILE", "certs/server.key")
     workers = int(getenv("WORKERS", 5))
+
+    max_content_length = int(getenv("MAX_CONTENT_LENGTH", 10**10))
+    timeout_min = int(getenv("TIMEOUT_MIN", 60))
+    timeout_max = int(getenv("TIMEOUT_MAX", 3600))
